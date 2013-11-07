@@ -76,6 +76,11 @@ static NSArray * EditableTextInputsInView(UIView *view)
 
 - (void) updateSegmentedControl
 {
+    // if we have a delegate do not disable or enable the segment control
+    if (self.delegate) {
+        return;
+    }
+    
 	NSArray *responders = self.responders;
 	if ([responders count] == 0)
 		return;
@@ -140,10 +145,26 @@ static NSArray * EditableTextInputsInView(UIView *view)
 	[_toolbar setItems:items animated:animated];
 }
 
+- (void)enableNextButton:(BOOL)enable
+{
+	UISegmentedControl *segmentedControl = (UISegmentedControl *)[_toolbar.items[0] customView];
+    [segmentedControl setEnabled:enable forSegmentAtIndex:1];
+}
+- (void)enablePreviousButton:(BOOL)enable
+{
+	UISegmentedControl *segmentedControl = (UISegmentedControl *)[_toolbar.items[0] customView];
+    [segmentedControl setEnabled:enable forSegmentAtIndex:0];
+}
+
 #pragma mark - Actions
 
 - (void) selectAdjacentResponder:(UISegmentedControl *)sender
 {
+    if (self.delegate) {
+        [self segmentControlClicked:sender];
+        return;
+    }
+    
 	NSArray *firstResponders = [self.responders filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(UIResponder *responder, NSDictionary *bindings) {
 		return [responder isFirstResponder];
 	}]];
@@ -156,6 +177,23 @@ static NSArray * EditableTextInputsInView(UIView *view)
 		adjacentResponder = [self.responders objectAtIndex:adjacentResponderIndex];
 	
 	[adjacentResponder becomeFirstResponder];
+}
+
+- (void)segmentControlClicked:(UISegmentedControl *)sender
+{
+    switch (sender.selectedSegmentIndex) {
+        case 0:
+            if ([self.delegate respondsToSelector:@selector(formInputAccessoryViewDidClickPreviousButton:)]) {
+                [self.delegate formInputAccessoryViewDidClickPreviousButton:self];
+            }
+            break;
+            
+        case 1:
+            if ([self.delegate respondsToSelector:@selector(formInputAccessoryViewDidClickNextButton:)]) {
+                [self.delegate formInputAccessoryViewDidClickNextButton:self];
+            }
+            break;
+    }
 }
 
 - (void) done

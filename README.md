@@ -29,6 +29,19 @@ If you want to have total control over what the **Previous** and **Next** button
 1. Find all text fields and editable text views in the key window
 2. Sort them using their frame origin vertical position
 
+Delegate
+========
+If you want `XCDFormInputAccessoryView` to let you know when the next or
+previous button is clicked, you can implement the `XCDFormInputAccessoryViewDelegate` and implement the optional methods
+
+	-(void)formInputAccessoryViewDidClickNextButton:(XCDFormInputAccessoryView *)formInputAccessoryView;
+	-(void)formInputAccessoryViewDidClickPreviousButton:(XCDFormInputAccessoryView *)formInputAccessoryView;
+
+###Beware
+When you set the delegate to your `XCDFormInputAccessoryView` the
+default functionality will be overridden and you will have to make the
+next and previous functionality using the delegates methods
+
 License
 =======
 The MIT License (MIT)
